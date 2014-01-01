@@ -38,7 +38,7 @@ public class OpenFileHandler {
     
     public String getFileLock(String filename){
         try {
-            RandomAccessFile raFile = new RandomAccessFile(filename,"rws");
+            RandomAccessFile raFile = new RandomAccessFile(filename,"rwd");
             fc = raFile.getChannel();
             lock = fc.tryLock();
         } catch (FileNotFoundException fnfe) {

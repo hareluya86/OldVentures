@@ -209,6 +209,7 @@ public class OldVenturesUI extends javax.swing.JFrame {
         int returnVal = fileChooser.showOpenDialog(this);
         File selectedFile;
         String absolutePath;
+        statusBar.setText("Loading file...");
 
         switch(returnVal){
             case JFileChooser.APPROVE_OPTION:   selectedFile = fileChooser.getSelectedFile();
