@@ -8,6 +8,8 @@ import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.NonWritableChannelException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,12 +20,16 @@ import java.util.logging.Logger;
  */
 public class OpenFileHandler {
     
+    private RandomAccessFile raFile;
     private FileChannel fc;
     private FileLock lock;
     
     private OutputStream fOut;
     private InputStream  fIn;
     
+    final Charset charset = Charset.forName("US-ASCII");
+    
+    BufferedReader bReader;
 
     public FileChannel getFc() {
         return fc;
@@ -46,9 +52,11 @@ public class OpenFileHandler {
      */
     public String getFileLock(String filepath){
         try {
-            RandomAccessFile raFile = new RandomAccessFile(filepath,"rwd");
+            raFile = new RandomAccessFile(filepath,"rwd");
             fc = raFile.getChannel();
             lock = fc.tryLock();
+            
+            //lock = fc.lock();//blocking call, so don't ever use!
         } catch (FileNotFoundException fnfe) {
             Logger.getLogger(OpenFileHandler.class.getName()).log(Level.SEVERE, "File not found!", fnfe);
             return "File not found!";
@@ -57,13 +65,14 @@ public class OpenFileHandler {
             return "File cannot be locked!";
         } catch (IOException ioe) {
             Logger.getLogger(OpenFileHandler.class.getName()).log(Level.SEVERE, "IO exception", ioe);
-            return "IO exception";
+            return "IO exception!";
         } catch (Exception e) {
             Logger.getLogger(OpenFileHandler.class.getName()).log(Level.SEVERE, "Other" , e);
-            return "Error opening file: "+e.getMessage();
+            return "Error: "+e.getMessage();
         }
-        
-        return "File loaded and ready!";
+        if(lock == null) 
+            return "File locked by other programs!";
+        return "File loaded and ready.";
     }
     
     public String getOutputStream(String filepath){
@@ -71,7 +80,9 @@ public class OpenFileHandler {
         if(!file.exists()) return "File not found!";
         
         try{
-            fIn = new BufferedInputStream(new FileInputStream(file));
+            //fIn = new BufferedInputStream(new FileInputStream(file));
+            //bReader = new BufferedReader(new InputStreamReader(fIn));
+            bReader = Files.newBufferedReader(file.toPath(),charset);
             //fOut = new BufferedOutputStream(new FileOutputStream(file));
             
         } catch (FileNotFoundException fnfe) {
@@ -88,6 +99,7 @@ public class OpenFileHandler {
         try{
             if(fIn != null) fIn.close();
             if(fOut != null) fOut.close();
+            if(lock != null) lock.release();
         } catch (IOException ioe) {
             Logger.getLogger(OpenFileHandler.class.getName()).log(Level.SEVERE, "IO exception", ioe);
             return "Error closing file: "+ioe.getMessage();
@@ -95,18 +107,52 @@ public class OpenFileHandler {
         return "File connections closed.";
     }
     
-    public String generateSequence(int numOfSequence){
+    public String generateSequenceBR(int numOfSequence){
         //1. Read the total number of lines first
         long numOfLines = 0L;
+        int lineSizeInBytes = 0;
         String temp = "";
         try{
-            BufferedReader bReader = new BufferedReader(new InputStreamReader(fIn));
+            /*while((temp = bReader.readLine()) != null){
+                System.out.println(temp);
+                numOfLines++;
+            }*/
             temp = bReader.readLine();
-            System.out.println();
+            if(temp != null)
+                lineSizeInBytes = temp.getBytes().length;
         } catch (IOException ioe){
             Logger.getLogger(OpenFileHandler.class.getName()).log(Level.SEVERE, "IO exception", ioe);
             return "Error reading file: "+ioe.getMessage();
         }
+        System.out.println(lineSizeInBytes);
+        return temp;
+    }
+    
+    public String generateSequenceRAF(int numOfSequence){
+        long size = 0L;
+        long numOfLines = 0L;
+        String temp = "";
+        try{
+            //First, get a random sequence
+            size = raFile.length();
+            numOfLines = (size)/31; // assume that all lines in the file are of the same length
+            
+            long randLine = ((long)(Math.random()*numOfLines))*31;
+            
+            raFile.seek(randLine);
+            temp = raFile.readLine();
+            
+            System.out.println("Total number of lines: "+numOfLines);
+            System.out.println("Position: "+raFile.getFilePointer());
+            
+            //Second, 
+        }
+        catch (IOException ioe){
+            Logger.getLogger(OpenFileHandler.class.getName()).log(Level.SEVERE, "IO exception", ioe);
+            return "Error: "+ioe.getMessage();
+        }
+        System.out.println(temp);
+        System.out.println(temp.getBytes().length);
         return temp;
     }
 }

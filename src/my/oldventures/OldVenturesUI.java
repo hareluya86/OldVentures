@@ -69,19 +69,10 @@ public class OldVenturesUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        enterFilenameLabel.setText("Enter Filename: ");
+        enterFilenameLabel.setText("Filename: ");
 
-        filepathText.setText("C:\\Users\\vincent.a.lee\\Desktop\\example.txt");
-        filepathText.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                filepathTextMouseClicked(evt);
-            }
-        });
-        filepathText.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                filepathTextActionPerformed(evt);
-            }
-        });
+        filepathText.setEditable(false);
+        filepathText.setDisabledTextColor(new java.awt.Color(153, 153, 153));
 
         openFileButton.setText("Open File");
         openFileButton.addActionListener(new java.awt.event.ActionListener() {
@@ -92,7 +83,7 @@ public class OldVenturesUI extends javax.swing.JFrame {
 
         numSeqLabel.setText("Select Num of Sequence: ");
 
-        numSeqSelector.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1 Sequence", "2 Sequences", "3 Sequences", "4 Sequences", "5 Sequences" }));
+        numSeqSelector.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5" }));
         numSeqSelector.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 numSeqSelectorActionPerformed(evt);
@@ -128,36 +119,29 @@ public class OldVenturesUI extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(numSeqLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(numSeqSelector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
-                        .addComponent(jButton3)
-                        .addGap(2, 2, 2)
-                        .addComponent(jButton4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton5)
-                        .addGap(12, 12, 12))
+                    .addComponent(statusBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(openFileButton)
+                            .addComponent(generateButton)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(enterFilenameLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(filepathText, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                                .addComponent(filepathText, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(openFileButton)
-                                    .addComponent(generateButton))
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addContainerGap())
-                    .addComponent(statusBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addComponent(numSeqLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(numSeqSelector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton3)
+                                .addGap(2, 2, 2)
+                                .addComponent(jButton4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton5))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -174,15 +158,15 @@ public class OldVenturesUI extends javax.swing.JFrame {
                     .addComponent(numSeqSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(generateButton)
-                .addGap(18, 18, 18)
+                .addGap(13, 13, 13)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jButton5)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -192,47 +176,40 @@ public class OldVenturesUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void filepathTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filepathTextActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_filepathTextActionPerformed
-
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
         // TODO add your handling code here:
-        statusBar.setText("Loading file...");
-        String filepath = filepathText.getText();
-        String outcome = openFileHandler.getOutputStream(filepath);
-        this.statusBar.setText(outcome);
-
-        FileLock fl = openFileHandler.getLock();//For debugging purpose
-    }//GEN-LAST:event_openFileButtonActionPerformed
-
-    private void numSeqSelectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_numSeqSelectorActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_numSeqSelectorActionPerformed
-
-    private void filepathTextMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_filepathTextMouseClicked
-        // TODO add your handling code here:
+        
         fileChooser.setApproveButtonText("Select");
-        int returnVal = fileChooser.showOpenDialog(this);
         File selectedFile;
         String absolutePath;
+        int returnVal = fileChooser.showOpenDialog(this);
 
         switch(returnVal){
-            case JFileChooser.APPROVE_OPTION:   selectedFile = fileChooser.getSelectedFile();
+            case JFileChooser.APPROVE_OPTION:   statusBar.setText("Loading file...");
+                                                selectedFile = fileChooser.getSelectedFile();
                                                 absolutePath = selectedFile.getAbsolutePath();
                                                 filepathText.setValue(absolutePath);
+                                                String filepath = filepathText.getText();
+                                                openFileHandler.close();
+                                                String outcome = openFileHandler.getFileLock(filepath);
+                                                this.statusBar.setText(outcome);
                                                 break;
             case JFileChooser.CANCEL_OPTION :   break;
             case JFileChooser.ERROR_OPTION  :   statusBar.setText("Error encountered while selecting file!");
                                                 break;
             default                         :   break;
         }
-    }//GEN-LAST:event_filepathTextMouseClicked
+        
+    }//GEN-LAST:event_openFileButtonActionPerformed
+
+    private void numSeqSelectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_numSeqSelectorActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_numSeqSelectorActionPerformed
 
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
         // TODO add your handling code here:
         int numOfSequence = 1;
-        String result = openFileHandler.generateSequence(numOfSequence);
+        String result = openFileHandler.generateSequenceRAF(numOfSequence);
         statusBar.setText(result);
     }//GEN-LAST:event_generateButtonActionPerformed
 
