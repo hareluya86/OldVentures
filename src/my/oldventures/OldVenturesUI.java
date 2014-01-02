@@ -27,6 +27,13 @@ public class OldVenturesUI extends javax.swing.JFrame {
         openFileHandler = new OpenFileHandler();
     }
 
+    /**@Override
+    public void dispose() {
+        super.dispose();
+        //openFileHandler.close();
+    }
+    */
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -57,11 +64,10 @@ public class OldVenturesUI extends javax.swing.JFrame {
         fileChooser.setBackground(java.awt.Color.white);
         fileChooser.setCurrentDirectory(new java.io.File("C:\\Users\\vincent.a.lee\\Desktop"));
         fileChooser.setDialogTitle("Open File");
-        fileChooser.setFileHidingEnabled(false);
         fileChooser.setToolTipText("");
         fileChooser.setDragEnabled(true);
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         enterFilenameLabel.setText("Enter Filename: ");
 
@@ -192,8 +198,9 @@ public class OldVenturesUI extends javax.swing.JFrame {
 
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
         // TODO add your handling code here:
+        statusBar.setText("Loading file...");
         String filepath = filepathText.getText();
-        String outcome = openFileHandler.getFileLock(filepath);
+        String outcome = openFileHandler.getOutputStream(filepath);
         this.statusBar.setText(outcome);
 
         FileLock fl = openFileHandler.getLock();//For debugging purpose
@@ -209,7 +216,6 @@ public class OldVenturesUI extends javax.swing.JFrame {
         int returnVal = fileChooser.showOpenDialog(this);
         File selectedFile;
         String absolutePath;
-        statusBar.setText("Loading file...");
 
         switch(returnVal){
             case JFileChooser.APPROVE_OPTION:   selectedFile = fileChooser.getSelectedFile();
@@ -225,7 +231,9 @@ public class OldVenturesUI extends javax.swing.JFrame {
 
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
         // TODO add your handling code here:
-        
+        int numOfSequence = 1;
+        String result = openFileHandler.generateSequence(numOfSequence);
+        statusBar.setText(result);
     }//GEN-LAST:event_generateButtonActionPerformed
 
     /**
