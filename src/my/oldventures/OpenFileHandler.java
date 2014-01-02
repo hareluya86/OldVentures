@@ -24,12 +24,14 @@ public class OpenFileHandler {
     private FileChannel fc;
     private FileLock lock;
     
-    private OutputStream fOut;
-    private InputStream  fIn;
+    private OutputStream fOut; //won't be used
+    private InputStream  fIn; //won't be used
     
     final Charset charset = Charset.forName("US-ASCII");
     
-    BufferedReader bReader;
+    BufferedReader bReader; //won't be used
+    
+    
 
     public FileChannel getFc() {
         return fc;
@@ -142,6 +144,10 @@ public class OpenFileHandler {
             raFile.seek(randLine);
             temp = raFile.readLine();
             
+            String[] result = parseLine(temp);
+            for(String r:result){
+                System.out.println(r);
+            }
             System.out.println("Total number of lines: "+numOfLines);
             System.out.println("Position: "+raFile.getFilePointer());
             
@@ -154,5 +160,10 @@ public class OpenFileHandler {
         System.out.println(temp);
         System.out.println(temp.getBytes().length);
         return temp;
+    }
+    
+    public String[] parseLine(String line){
+        String[] result = line.split("\"");
+        return result;
     }
 }
