@@ -4,14 +4,9 @@
  */
 package my.oldventures;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -34,6 +29,14 @@ public class SequenceFormatHandler {
         return "";
     }
     
+    public String changeSequencesFormat(List<List<String>> sequences, FORMAT format){
+        String result = new String();
+        for(List<String> s:sequences){
+            result = result.concat(changeSequenceFormat(s,format)).concat("\n");
+        }
+        return result;
+    }
+    
     /**
      * Gets a "clean" list of numbers from the rawSequence
      * <p>
@@ -45,14 +48,23 @@ public class SequenceFormatHandler {
      * @param  text  a String object that is in the raw format mentioned
      * 
      */
-    public List<String> fromText(String text){
+    public List<String> lineFromText(String text){
         String[] tempList = text.split("\t");
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for(String t:tempList){
             //remove inverted commas
             result.add(t.replaceAll("\"", ""));
         }
         
+        return result;
+    }
+    
+    public List<List<String>> linesFromText(String text){
+        String[] tempList = text.split("\n");
+        ArrayList<List<String>> result = new ArrayList<>();
+        for(String t:tempList){
+            result.add(lineFromText(t));
+        }
         return result;
     }
     
@@ -89,17 +101,5 @@ public class SequenceFormatHandler {
         return textFormat;
     }
     
-    public List<String> fromCSV(String csv){
-        String[] baseFormat = csv.split(",");
-        List<String> result = new ArrayList<>();
-        result.addAll(Arrays.asList(baseFormat));
-        return result;
-    }
     
-    public List<String> fromExcel(String excel){
-        String[] baseFormat = excel.split("\t");
-        List<String> result = new ArrayList<>();
-        result.addAll(Arrays.asList(baseFormat));
-        return result;
-    }
 }

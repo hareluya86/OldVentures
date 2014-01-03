@@ -95,14 +95,17 @@ public class OpenFileHandler {
     }
     
     
-    public String generateSequenceRAF(){
+    public String generateSequenceRAF(int numOfSequence){
         long size = 0L;
         long numOfLines = 0L;
         String temp = "";
+        int i = numOfSequence;
+        List<Long> pool = new ArrayList<>();
+        
         rawSequences = new String(); //clears away the previous sequences
         try{
-            //First, get a random sequence
             
+            //First, get a random sequence
             size = raFile.length();
             /**
              * 1. Assume that all lines in the file are of the same length
@@ -110,13 +113,21 @@ public class OpenFileHandler {
              * eg. a line without '\n' at the end
              */
             numOfLines = (long)Math.ceil(size/DEFAULT_LINE_SIZE); 
+            while(i>0){
+                long randLine = ((long)(Math.random()*numOfLines))*DEFAULT_LINE_SIZE;
+                if(pool.contains(randLine)){
+                    continue;
+                }
+
+                raFile.seek(randLine);
+                String temp1 = raFile.readLine();
+                temp = temp.concat(temp1).concat("\n");
+
+                i--;
+                pool.add(randLine);
+            }
             
-            long randLine = ((long)(Math.random()*numOfLines))*DEFAULT_LINE_SIZE;
-            
-            raFile.seek(randLine);
-            temp = raFile.readLine();
-            
-            rawSequences = temp;
+            this.setRawSequences(temp);
             System.out.println("Total file size: "+size);
             System.out.println("Total number of lines: "+numOfLines);
             System.out.println("Position: "+raFile.getFilePointer());
@@ -126,11 +137,16 @@ public class OpenFileHandler {
         }
         catch (IOException ioe){
             Logger.getLogger(OpenFileHandler.class.getName()).log(Level.SEVERE, "IO exception", ioe);
-            return "Error: "+ioe.getMessage();
+            String message = ioe.getMessage();
+            if(rawSequences != null && !rawSequences.isEmpty())
+                message = "Only "+(numOfSequence-i)+" sequence(s) were generated: "+message;
+            else
+                message = "Error: "+message;
+            return message;
         }
         System.out.println(temp);
         System.out.println(temp.getBytes().length);
-        return "Sequence(s) generated!";
+        return numOfSequence+" Sequence(s) generated!";
     }
     
     /* obsolete methods

@@ -228,34 +228,34 @@ public class OldVenturesUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         String numOfSequenceString = this.numSeqSelector.getSelectedItem().toString();
         int numOfSequence = Integer.parseInt(numOfSequenceString);
-        String result = openFileHandler.generateSequenceRAF();
+        String result = openFileHandler.generateSequenceRAF(numOfSequence);
         statusBar.setText(result);
         
         String rawSequence = openFileHandler.getRawSequences();
-        List<String> baseFormatSequence = sequenceFormatHandler.fromText(rawSequence);
-        String processedSequence = sequenceFormatHandler.changeSequenceFormat(baseFormatSequence, SequenceFormatHandler.FORMAT.TEXT);
+        List<List<String>> baseFormatSequence = sequenceFormatHandler.linesFromText(rawSequence);
+        String processedSequence = sequenceFormatHandler.changeSequencesFormat(baseFormatSequence, SequenceFormatHandler.FORMAT.TEXT);
         
         outputTextArea.setText(processedSequence);
     }//GEN-LAST:event_generateButtonActionPerformed
 
     private void convertToExcelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_convertToExcelButtonActionPerformed
         // TODO add your handling code here:
-        List<String> output = sequenceFormatHandler.fromText(openFileHandler.getRawSequences());
-        String result = sequenceFormatHandler.changeSequenceFormat(output, SequenceFormatHandler.FORMAT.EXCEL);
+        List<List<String>> output = sequenceFormatHandler.linesFromText(openFileHandler.getRawSequences());
+        String result = sequenceFormatHandler.changeSequencesFormat(output, SequenceFormatHandler.FORMAT.EXCEL);
         this.outputTextArea.setText(result);
     }//GEN-LAST:event_convertToExcelButtonActionPerformed
 
     private void convertToCSVButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_convertToCSVButtonActionPerformed
         // TODO add your handling code here:
-        List<String> output = sequenceFormatHandler.fromText(openFileHandler.getRawSequences());
-        String result = sequenceFormatHandler.changeSequenceFormat(output, SequenceFormatHandler.FORMAT.CSV);
+        List<List<String>> output = sequenceFormatHandler.linesFromText(openFileHandler.getRawSequences());
+        String result = sequenceFormatHandler.changeSequencesFormat(output, SequenceFormatHandler.FORMAT.CSV);
         this.outputTextArea.setText(result);
     }//GEN-LAST:event_convertToCSVButtonActionPerformed
 
     private void convertToTextButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_convertToTextButtonActionPerformed
         // TODO add your handling code here:
-        List<String> output = sequenceFormatHandler.fromText(openFileHandler.getRawSequences());
-        String result = sequenceFormatHandler.changeSequenceFormat(output, SequenceFormatHandler.FORMAT.TEXT);
+        List<List<String>> output = sequenceFormatHandler.linesFromText(openFileHandler.getRawSequences());
+        String result = sequenceFormatHandler.changeSequencesFormat(output, SequenceFormatHandler.FORMAT.TEXT);
         this.outputTextArea.setText(result);
     }//GEN-LAST:event_convertToTextButtonActionPerformed
 
