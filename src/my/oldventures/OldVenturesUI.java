@@ -6,6 +6,7 @@ package my.oldventures;
 
 import java.io.File;
 import java.nio.channels.FileLock;
+import java.util.List;
 import javax.swing.JFileChooser;
 
 /**
@@ -15,6 +16,7 @@ import javax.swing.JFileChooser;
 public class OldVenturesUI extends javax.swing.JFrame {
 
     OpenFileHandler openFileHandler;
+    SequenceFormatHandler sequenceFormatHandler;
     
     /**
      * Creates new form OldVenturesUI
@@ -25,6 +27,7 @@ public class OldVenturesUI extends javax.swing.JFrame {
          * Initialize helpers and other non-GUI components
          */
         openFileHandler = new OpenFileHandler();
+        sequenceFormatHandler = new SequenceFormatHandler();
     }
 
     /**@Override
@@ -51,10 +54,10 @@ public class OldVenturesUI extends javax.swing.JFrame {
         numSeqSelector = new javax.swing.JComboBox();
         generateButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        outputTextArea = new javax.swing.JTextArea();
+        convertToExcelButton = new javax.swing.JButton();
+        convertToCSVButton = new javax.swing.JButton();
+        convertToTextButton = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         statusBar = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
@@ -97,15 +100,30 @@ public class OldVenturesUI extends javax.swing.JFrame {
             }
         });
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        outputTextArea.setColumns(20);
+        outputTextArea.setRows(5);
+        jScrollPane1.setViewportView(outputTextArea);
 
-        jButton3.setText("Excel");
+        convertToExcelButton.setText("Excel");
+        convertToExcelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                convertToExcelButtonActionPerformed(evt);
+            }
+        });
 
-        jButton4.setText("CSV");
+        convertToCSVButton.setText("CSV");
+        convertToCSVButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                convertToCSVButtonActionPerformed(evt);
+            }
+        });
 
-        jButton5.setText("Notepad");
+        convertToTextButton.setText("Text");
+        convertToTextButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                convertToTextButtonActionPerformed(evt);
+            }
+        });
 
         jLabel3.setText("Format:");
 
@@ -135,11 +153,11 @@ public class OldVenturesUI extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton3)
+                                .addComponent(convertToExcelButton)
                                 .addGap(2, 2, 2)
-                                .addComponent(jButton4)
+                                .addComponent(convertToCSVButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton5))
+                                .addComponent(convertToTextButton))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap())))
         );
@@ -161,12 +179,12 @@ public class OldVenturesUI extends javax.swing.JFrame {
                 .addGap(13, 13, 13)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton5)))
+                        .addComponent(convertToExcelButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(convertToCSVButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(convertToTextButton))
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -208,10 +226,38 @@ public class OldVenturesUI extends javax.swing.JFrame {
 
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
         // TODO add your handling code here:
-        int numOfSequence = 1;
-        String result = openFileHandler.generateSequenceRAF(numOfSequence);
+        String numOfSequenceString = this.numSeqSelector.getSelectedItem().toString();
+        int numOfSequence = Integer.parseInt(numOfSequenceString);
+        String result = openFileHandler.generateSequenceRAF();
         statusBar.setText(result);
+        
+        String rawSequence = openFileHandler.getRawSequences();
+        List<String> baseFormatSequence = sequenceFormatHandler.fromText(rawSequence);
+        String processedSequence = sequenceFormatHandler.changeSequenceFormat(baseFormatSequence, SequenceFormatHandler.FORMAT.TEXT);
+        
+        outputTextArea.setText(processedSequence);
     }//GEN-LAST:event_generateButtonActionPerformed
+
+    private void convertToExcelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_convertToExcelButtonActionPerformed
+        // TODO add your handling code here:
+        List<String> output = sequenceFormatHandler.fromText(openFileHandler.getRawSequences());
+        String result = sequenceFormatHandler.changeSequenceFormat(output, SequenceFormatHandler.FORMAT.EXCEL);
+        this.outputTextArea.setText(result);
+    }//GEN-LAST:event_convertToExcelButtonActionPerformed
+
+    private void convertToCSVButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_convertToCSVButtonActionPerformed
+        // TODO add your handling code here:
+        List<String> output = sequenceFormatHandler.fromText(openFileHandler.getRawSequences());
+        String result = sequenceFormatHandler.changeSequenceFormat(output, SequenceFormatHandler.FORMAT.CSV);
+        this.outputTextArea.setText(result);
+    }//GEN-LAST:event_convertToCSVButtonActionPerformed
+
+    private void convertToTextButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_convertToTextButtonActionPerformed
+        // TODO add your handling code here:
+        List<String> output = sequenceFormatHandler.fromText(openFileHandler.getRawSequences());
+        String result = sequenceFormatHandler.changeSequenceFormat(output, SequenceFormatHandler.FORMAT.TEXT);
+        this.outputTextArea.setText(result);
+    }//GEN-LAST:event_convertToTextButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -248,20 +294,20 @@ public class OldVenturesUI extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton convertToCSVButton;
+    private javax.swing.JButton convertToExcelButton;
+    private javax.swing.JButton convertToTextButton;
     private javax.swing.JLabel enterFilenameLabel;
     private javax.swing.JFileChooser fileChooser;
     private javax.swing.JFormattedTextField filepathText;
     private javax.swing.JButton generateButton;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel numSeqLabel;
     private javax.swing.JComboBox numSeqSelector;
     private javax.swing.JButton openFileButton;
+    private javax.swing.JTextArea outputTextArea;
     private javax.swing.JLabel statusBar;
     // End of variables declaration//GEN-END:variables
 }
