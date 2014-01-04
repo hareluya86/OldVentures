@@ -4,6 +4,9 @@
  */
 package my.oldventures;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.nio.channels.FileLock;
 import java.util.List;
@@ -61,6 +64,7 @@ public class OldVenturesUI extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         statusBar = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
+        copyButton = new javax.swing.JButton();
 
         fileChooser.setApproveButtonText("");
         fileChooser.setApproveButtonToolTipText("");
@@ -86,7 +90,8 @@ public class OldVenturesUI extends javax.swing.JFrame {
 
         numSeqLabel.setText("Select Num of Sequence: ");
 
-        numSeqSelector.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5" }));
+        numSeqSelector.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20" }));
+        numSeqSelector.setSelectedIndex(5);
         numSeqSelector.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 numSeqSelectorActionPerformed(evt);
@@ -129,6 +134,13 @@ public class OldVenturesUI extends javax.swing.JFrame {
 
         statusBar.setText("Ready!");
 
+        copyButton.setText("Copy");
+        copyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                copyButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -140,16 +152,20 @@ public class OldVenturesUI extends javax.swing.JFrame {
                     .addComponent(statusBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(openFileButton)
-                            .addComponent(generateButton)
+                            .addComponent(jScrollPane1)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(enterFilenameLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(filepathText, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(filepathText))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(numSeqLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(numSeqSelector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(openFileButton)
+                                    .addComponent(generateButton)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(numSeqLabel)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(numSeqSelector, 0, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -157,8 +173,9 @@ public class OldVenturesUI extends javax.swing.JFrame {
                                 .addGap(2, 2, 2)
                                 .addComponent(convertToCSVButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(convertToTextButton))
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 237, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(convertToTextButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 226, Short.MAX_VALUE)
+                                .addComponent(copyButton)))
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -176,17 +193,18 @@ public class OldVenturesUI extends javax.swing.JFrame {
                     .addComponent(numSeqSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(generateButton)
-                .addGap(13, 13, 13)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 369, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(convertToExcelButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(convertToCSVButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(convertToTextButton))
+                        .addComponent(convertToTextButton)
+                        .addComponent(copyButton))
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(16, 16, 16)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusBar))
         );
@@ -226,6 +244,8 @@ public class OldVenturesUI extends javax.swing.JFrame {
 
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
         // TODO add your handling code here:
+        generateButton.setText("Generating...");
+        generateButton.setEnabled(false);
         String numOfSequenceString = this.numSeqSelector.getSelectedItem().toString();
         int numOfSequence = Integer.parseInt(numOfSequenceString);
         String result = openFileHandler.generateSequenceRAF(numOfSequence);
@@ -236,6 +256,8 @@ public class OldVenturesUI extends javax.swing.JFrame {
         String processedSequence = sequenceFormatHandler.changeSequencesFormat(baseFormatSequence, SequenceFormatHandler.FORMAT.TEXT);
         
         outputTextArea.setText(processedSequence);
+        generateButton.setText("Generate Sequence");
+        generateButton.setEnabled(true);
     }//GEN-LAST:event_generateButtonActionPerformed
 
     private void convertToExcelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_convertToExcelButtonActionPerformed
@@ -258,6 +280,15 @@ public class OldVenturesUI extends javax.swing.JFrame {
         String result = sequenceFormatHandler.changeSequencesFormat(output, SequenceFormatHandler.FORMAT.TEXT);
         this.outputTextArea.setText(result);
     }//GEN-LAST:event_convertToTextButtonActionPerformed
+
+    private void copyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyButtonActionPerformed
+        // TODO add your handling code here:
+        outputTextArea.selectAll();
+        StringSelection stringSelection = new StringSelection (outputTextArea.getSelectedText());
+        Clipboard clpbrd = Toolkit.getDefaultToolkit ().getSystemClipboard ();
+        clpbrd.setContents (stringSelection, null);
+        statusBar.setText("Output is copied to clipboard!");
+    }//GEN-LAST:event_copyButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -297,6 +328,7 @@ public class OldVenturesUI extends javax.swing.JFrame {
     private javax.swing.JButton convertToCSVButton;
     private javax.swing.JButton convertToExcelButton;
     private javax.swing.JButton convertToTextButton;
+    private javax.swing.JButton copyButton;
     private javax.swing.JLabel enterFilenameLabel;
     private javax.swing.JFileChooser fileChooser;
     private javax.swing.JFormattedTextField filepathText;
