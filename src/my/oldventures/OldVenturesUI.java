@@ -75,6 +75,7 @@ public class OldVenturesUI extends javax.swing.JFrame {
         fileChooser.setDragEnabled(true);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("SECA UTILITY");
 
         enterFilenameLabel.setText("Filename: ");
 
