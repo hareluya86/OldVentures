@@ -25,7 +25,16 @@ import java.util.logging.Logger;
  */
 public class OpenFileHandler {
     
-    public final static int DEFAULT_LINE_SIZE = 31;
+    public int DEFAULT_LINE_SIZE;
+    /**
+     * DEFAULT_NEWLINE_SIZE: this is the platform-dependent default length of 
+     * a newline character:
+     * <p>
+     * Windows  :   2 bytes - '\r' and '\n'
+     * Unix     :   1 byte - '\n'
+     * 
+     */
+    public final int DEFAULT_NEWLINE_SIZE;
     private RandomAccessFile raFile;
     private FileChannel fc;
     private FileLock lock;
@@ -34,6 +43,17 @@ public class OpenFileHandler {
     
     private String rawSequences;
 
+    public OpenFileHandler() {
+        String os = System.getProperty("os.name");
+        if(os.contains("Window")){
+            DEFAULT_NEWLINE_SIZE = 2;
+        } else if(os.contains("unix")){
+            DEFAULT_NEWLINE_SIZE = 1;
+        } else {
+            throw new RuntimeException("OS not recognizeable! Please contact developer!");
+        }
+    }
+    
     public FileChannel getFc() {
         return fc;
     }
@@ -63,6 +83,10 @@ public class OpenFileHandler {
             raFile = new RandomAccessFile(filepath,"rwd");
             fc = raFile.getChannel();
             lock = fc.tryLock();
+            
+            //Check byte length of file and set the default line size
+            String line = raFile.readLine();
+            DEFAULT_LINE_SIZE = line.getBytes().length + DEFAULT_NEWLINE_SIZE;
             
             //lock = fc.lock();//blocking call, so don't ever use!
         } catch (FileNotFoundException fnfe) {
@@ -128,6 +152,7 @@ public class OpenFileHandler {
 
                 raFile.seek(randPointer);
                 String temp1 = raFile.readLine();
+                System.out.println("Line size: "+temp1.getBytes().length);
                 temp = temp.concat(temp1).concat("\n");
 
                 i--;
@@ -254,6 +279,8 @@ public class OpenFileHandler {
             throw ioe;
         }
     }
+    
+    //public int getLineSize()
     
     /* obsolete methods
     public String generateSequenceBR(int numOfSequence){

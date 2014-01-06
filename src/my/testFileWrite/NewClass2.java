@@ -30,7 +30,7 @@ public class NewClass2 {
         //int[] positions = {7,8,9,10,11,12,13};
         int numPositions = positions.length;
         try {
-            RandomAccessFile raf = new RandomAccessFile("C:\\Users\\KH\\Documents\\SATLOTTO - Copy.txt","rwd");
+            RandomAccessFile raf = new RandomAccessFile("C:\\Users\\vincent.a.lee\\Desktop\\example.txt","rwd");
             FileChannel fc = raf.getChannel();
             fileSize = fc.size();//raf.length();
             double exactLines = fileSize/(double)lineSize; //must cast denom to double before an exact double value can be produced by division
