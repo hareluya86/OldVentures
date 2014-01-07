@@ -187,10 +187,6 @@ public class OpenFileHandler {
         long fileSize;
         int numLines;
         int initialbBufferSize = lineSize;
-        //int[] positions = {0,2,5,13,29,31}; //sorted list of positions of the lines that are to be removed
-        //int[] positions = {89,94,95,96,97,98};
-        //int[] positions = {1,3,5,7,9,11,13};
-        //int[] positions = {7,8,9,10,11,12,13};
         int numPositions = positions.size();
         try {
             fileSize = fc.size();
@@ -198,6 +194,7 @@ public class OpenFileHandler {
             numLines = (int) Math.ceil(exactLines);
             Date startDate = new Date();
             MappedByteBuffer map = fc.map(FileChannel.MapMode.READ_WRITE, 0, fileSize);
+            
             
             //Byte counters/pointers
             int bufferStart = positions.get(0)*lineSize; //start straight from the first file position. this points to where the buffer starts
@@ -255,12 +252,15 @@ public class OpenFileHandler {
                 bufferEnd = bufferStart + correctBufferSize;
                 bufferLineEnd = (bufferEnd/lineSize)-1;
             }
-            map = null;
+            //map = null;
+            //System.gc();System.gc();System.gc();
+            map = fc.map(FileChannel.MapMode.PRIVATE, 0, 0);
             System.gc();System.gc();System.gc();
             try{
                 fc.truncate(fileSize-(positions.size()*lineSize));
             } catch (IOException ioe) {
-                System.gc();System.gc();System.gc();
+                map = fc.map(FileChannel.MapMode.PRIVATE, 0, 0);
+                System.gc();
                 try{
                     fc.truncate(fileSize-(positions.size()*lineSize));
                 } catch (IOException ioe2) {
@@ -279,6 +279,8 @@ public class OpenFileHandler {
             throw ioe;
         }
     }
+    
+    
     
     //public int getLineSize()
     
