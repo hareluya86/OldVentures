@@ -25,9 +25,9 @@ public class NewClass {
         RandomAccessFile raf = new RandomAccessFile("C:\\Users\\KH\\Documents\\New Text Document.txt","rws");
         
         int lines = 80;
-        int[] line = {11,12,13,14,15,10};
+        int[] line = {11,12,13,14,15,10,10};
         for(int i=0; i<lines; i++){
-            line[5] += 1;
+            line[6] += 1;
             String temp = "";
             boolean first = true;
             for(int j=0; j<line.length; j++){

@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import org.apache.commons.io.input.NullInputStream;
-import org.apache.commons.io.output.NullOutputStream;
+//import org.apache.commons.io.input.NullInputStream;
+//import org.apache.commons.io.output.NullOutputStream;
 
 /**
  *
@@ -27,8 +27,8 @@ public class NewClass3 {
         MappedByteBuffer map = fc.map(FileChannel.MapMode.READ_WRITE, 0, size);
         
         //Unmapping
-        byte[] temp = new byte[map.capacity()];
-        NullInputStream nullInput = new NullInputStream(map.capacity());
+        //byte[] temp = new byte[map.capacity()];
+        //NullInputStream nullInput = new NullInputStream(map.capacity());
         map = fc.map(FileChannel.MapMode.PRIVATE, 0, 0);
         System.gc();
         size--;

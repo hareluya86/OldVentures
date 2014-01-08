@@ -7,6 +7,7 @@ package my.testFileWrite;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Date;
@@ -23,20 +24,22 @@ public class NewClass2 {
         long fileSize;
         int numLines;
         int initialbBufferSize = lineSize;
-        //int[] positions = {0,2,5,13,29,31}; //sorted list of positions of the lines that are to be removed
+        int[] positions = {0,2,5,13,29,31}; //sorted list of positions of the lines that are to be removed
         //int[] positions = {89,94,95,96,97,98};
-        int[] positions = {1,3,5,7,9,11,13};
+        //int[] positions = {1,3,5,7,9,11,13};
+        //int[] positions = {0,2,4,6,8,10,12};
         //int[] positions = {0};
         //int[] positions = {7,8,9,10,11,12,13};
         int numPositions = positions.length;
         try {
-            RandomAccessFile raf = new RandomAccessFile("C:\\Users\\vincent.a.lee\\Desktop\\example.txt","rwd");
+            RandomAccessFile raf = new RandomAccessFile("C:\\Users\\KH\\Documents\\test3.txt","rwd");
             FileChannel fc = raf.getChannel();
             fileSize = fc.size();//raf.length();
             double exactLines = fileSize/(double)lineSize; //must cast denom to double before an exact double value can be produced by division
             numLines = (int) Math.ceil(exactLines);
             Date startDate = new Date();
-            MappedByteBuffer map = fc.map(FileChannel.MapMode.READ_WRITE, 0, lineSize*numLines);
+            //MappedByteBuffer map = fc.map(FileChannel.MapMode.READ_WRITE, 0, lineSize*numLines);
+            ByteBuffer bb;
             
             //Byte counters/pointers
             int bufferStart = positions[0]*lineSize; //start straight from the first file position. this points to where the buffer starts
@@ -69,10 +72,18 @@ public class NewClass2 {
                 
                 int correctBufferSize = Math.min(bufferSize, fileEnd-bufferStart);
                 
-                map.position(bufferStart);
+                //MappedByteBuffer map2 = fc.map(FileChannel.MapMode.READ_WRITE, bufferStart, correctBufferSize);
+                bb = ByteBuffer.allocate(correctBufferSize);
+                //fc.position(bufferStart);
+                fc.read(bb,bufferStart);
+                //map.position(bufferStart);
+                //map2.position(0);
                 byte[] byteBuffer = new byte[correctBufferSize];
                 try{
-                    map.get(byteBuffer, 0, correctBufferSize);
+                    //map.get(byteBuffer, 0, correctBufferSize);
+                    //map2.get(byteBuffer, 0, correctBufferSize);
+                    bb.position(0);
+                    bb.get(byteBuffer, 0, correctBufferSize);
                 } catch(java.nio.BufferUnderflowException buex){
                     System.out.println(bufferLineStart);
                 }
@@ -81,22 +92,36 @@ public class NewClass2 {
                 //Swap first line and last line
                 int i = 0;
                 int j = correctBufferSize-lineSize;
+                String string = new String(byteBuffer);
+                //System.out.println("Before swap: "+string);
                 while(j<correctBufferSize){ 
+                    //System.out.println("Before swap: i="+byteBuffer[i]+" and j="+byteBuffer[j]);
                     byte b = byteBuffer[i];
-                    byteBuffer[i++] = byteBuffer[j];
-                    byteBuffer[j++] = b;
+                    byteBuffer[i] = byteBuffer[j];
+                    byteBuffer[j] = b;
+                    //System.out.println("After swap: i="+byteBuffer[i]+" and j="+byteBuffer[j]);
+                    i++;j++;
                 }
-                map.position(bufferStart);
-                map.put(byteBuffer, 0, correctBufferSize);
+                string = new String(byteBuffer);
+                //System.out.println("After swap: "+string);
+                //map.position(bufferStart);
+                //map2.position(0);
+                bb.position(0);
+                //map.put(byteBuffer, 0, correctBufferSize);
+                //map2.put(byteBuffer, 0, correctBufferSize);
+                bb.put(byteBuffer, 0, correctBufferSize);
+                bb.position(0);
+                fc.write(bb,bufferStart);
+                
                 
                 bufferStart += lineSize;
                 bufferLineStart = bufferStart/lineSize;
                 bufferEnd = bufferStart + correctBufferSize;
                 bufferLineEnd = (bufferEnd/lineSize)-1;
             }
-            fc.close();
-            fc = raf.getChannel();
-            fc.truncate(fileSize-(positions.length*lineSize));
+            //fc.close();
+            //fc = raf.getChannel();
+            //fc.truncate(fileSize-(positions.length*lineSize));
             Date endDate = new Date();
             timeTaken = endDate.getTime()-startDate.getTime();
             System.out.println("Time taken: "+timeTaken);
