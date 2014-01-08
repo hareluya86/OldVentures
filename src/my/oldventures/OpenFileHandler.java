@@ -13,10 +13,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.NonWritableChannelException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -290,11 +287,11 @@ public class OpenFileHandler {
         }
     }
     
-    public void removeSequencesFromFile2(List<Integer> positions, FileChannel fc, RandomAccessFile raf, int lineSize) throws IOException{
+    public void removeSequencesFromFile2(List<Integer> positions, FileChannel fc, int lineSize, int maxBufferSize) throws IOException{
         long timeTaken;
         long fileSize;
         int numLines;
-        int initialbBufferSize = lineSize;
+        int initialbBufferSize = 0;
         int numPositions = positions.size();
         try {
             fileSize = fc.size();
@@ -302,77 +299,56 @@ public class OpenFileHandler {
             numLines = (int) Math.ceil(exactLines);
             Date startDate = new Date();
             //MappedByteBuffer map = fc.map(FileChannel.MapMode.READ_WRITE, 0, fileSize);
-            ByteBuffer bb;
             
             //Byte counters/pointers
             int bufferStart = positions.get(0)*lineSize; //start straight from the first file position. this points to where the buffer starts
             int bufferSize = initialbBufferSize; //this will be increased later
-            int bufferEnd = bufferStart + bufferSize; //tells us where the buffer ends
-            int position = 0; //position of the discarded sequences in the given array, start from the 2nd one
+            int bufferEnd; //tells us where the buffer ends
+            int offSet = 0; //number of sequences found so far
+            int nextPosition;// = positions.get(0);
             
             final int fileEnd = (int) (fileSize); //tells us the last point of the buffer
             
+            if(positions.size() > 1){
+                bufferEnd = (positions.get(1)-1)*lineSize;
+                offSet++;
+            }else{
+                bufferEnd = fileEnd;
+            }
             //File line counters/pointers
             int bufferLineStart = bufferStart/lineSize;
             int bufferLineSize = bufferSize/lineSize;
-            int bufferLineEnd = (bufferEnd/lineSize)-1; //Line tells us where the last line is
+            int bufferLineEnd = bufferEnd/lineSize; //Line tells us where the last line is
             
-            while(bufferEnd <= fileEnd){
+            while(true){ //I don't know what condition to put here yet
+                bufferSize = bufferStart - bufferEnd;
                 
-                
-                //check if the buffer contains the positions of the sequences to be discarded
-                //the first sequence will always increment the buffer for the 1st time
-                //int sequenceLine = positions[position];
-                while(position<positions.size() 
-                        && positions.get(position) >= bufferLineStart 
-                        && positions.get(position) <= bufferLineEnd){
-                    position++; //go to the next sequence
-                    bufferSize += lineSize; //increase bufferSize by 1 line
-                    bufferLineEnd++;
-                }
-                bufferStart = bufferLineStart*lineSize;
-                bufferEnd = bufferStart + bufferSize;
-                
-                int correctBufferSize = Math.min(bufferSize, fileEnd-bufferStart);
-                
-                //map.position(bufferStart);
-                bb = ByteBuffer.allocate(correctBufferSize);
-                fc.read(bb,bufferStart);
-                
-                byte[] byteBuffer = new byte[correctBufferSize];
-                try{
-                    //map.get(byteBuffer, 0, correctBufferSize);
-                    bb.position(0);
-                    bb.get(byteBuffer, 0, correctBufferSize);
-                } catch(java.nio.BufferUnderflowException buex){
-                    System.out.println(bufferLineStart);
+                if(bufferSize <= maxBufferSize){
+                    offSet++;
+                }else{
+                    bufferSize = maxBufferSize;
                 }
                 
+                byte[] bArray = new byte[bufferSize];
+                MappedByteBuffer map = fc.map(FileChannel.MapMode.READ_WRITE, bufferStart, bufferSize);
+                map.get(bArray);
+                bArray = shift(bArray,offSet*lineSize);
+                map.position(0);
+                map.put(bArray);
                 
-                //Swap first line and last line
-                int i = 0;
-                int j = correctBufferSize-lineSize;
-                while(j<correctBufferSize){ 
-                    byte b = byteBuffer[i];
-                    byteBuffer[i++] = byteBuffer[j];
-                    byteBuffer[j++] = b;
-                }
-                //map.position(bufferStart);
-                //map.put(byteBuffer, 0, correctBufferSize);
-                bb.position(0);
-                bb.put(byteBuffer, 0, correctBufferSize);
-                bb.position(0);
-                fc.write(bb,bufferStart);
-                
-                bufferStart += lineSize;
+                bufferStart = bufferEnd - offSet*lineSize;
                 bufferLineStart = bufferStart/lineSize;
-                bufferEnd = bufferStart + correctBufferSize;
-                bufferLineEnd = (bufferEnd/lineSize)-1;
+                
+                if(offSet < positions.size()){
+                    nextPosition = positions.get(offSet);
+                }else{
+                    nextPosition = numLines; //go to the end of file straight
+                }
+                
+                bufferLineEnd = nextPosition-1;
+                bufferEnd = bufferLineEnd*lineSize;
+                
             }
-            //map = null;
-            //System.gc();System.gc();System.gc();
-            //map = fc.map(FileChannel.MapMode.READ_WRITE, 0, 0);
-            //System.gc();System.gc();System.gc();
             try{
                 fc.truncate(fileSize-(positions.size()*lineSize));
             } catch (IOException ioe) {
@@ -397,6 +373,17 @@ public class OpenFileHandler {
             throw ioe;
         }
     }
+    
+    public byte[] shift(byte[] bArray, int offset){
+        int start = offset;
+        int end = bArray.length;
+        
+        for(int i=start;i<end;i++){
+            bArray[start-offset] = bArray[start];
+        }
+        return bArray;
+    }
+            
     
     
     //public int getLineSize()
