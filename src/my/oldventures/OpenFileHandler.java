@@ -293,6 +293,8 @@ public class OpenFileHandler {
         int numLines;
         int initialbBufferSize = 0;
         int numPositions = positions.size();
+        if(numPositions <= 0) return; //no need to remove
+        
         try {
             fileSize = fc.size();
             double exactLines = fileSize/(double)lineSize; //must cast denom to double before an exact double value can be produced by division
@@ -303,31 +305,24 @@ public class OpenFileHandler {
             //Byte counters/pointers
             int bufferStart = positions.get(0)*lineSize; //start straight from the first file position. this points to where the buffer starts
             int bufferSize = initialbBufferSize; //this will be increased later
-            int bufferEnd; //tells us where the buffer ends
+            int bufferEnd = bufferStart; //tells us where the buffer ends
             int offSet = 0; //number of sequences found so far
-            int nextPosition;// = positions.get(0);
+            int nextPosition = positions.get(offSet);
             
             final int fileEnd = (int) (fileSize); //tells us the last point of the buffer
-            
+            /*
             if(positions.size() > 1){
                 bufferEnd = (positions.get(1)-1)*lineSize;
                 offSet++;
             }else{
                 bufferEnd = fileEnd;
-            }
+            }*/
             //File line counters/pointers
             int bufferLineStart = bufferStart/lineSize;
             int bufferLineSize = bufferSize/lineSize;
             int bufferLineEnd = bufferEnd/lineSize; //Line tells us where the last line is
             
-            while(true){ //I don't know what condition to put here yet
-                bufferSize = bufferStart - bufferEnd;
-                
-                if(bufferSize <= maxBufferSize){
-                    offSet++;
-                }else{
-                    bufferSize = maxBufferSize;
-                }
+            while(offSet<=positions.size()){ 
                 
                 byte[] bArray = new byte[bufferSize];
                 MappedByteBuffer map = fc.map(FileChannel.MapMode.READ_WRITE, bufferStart, bufferSize);
@@ -336,21 +331,33 @@ public class OpenFileHandler {
                 map.position(0);
                 map.put(bArray);
                 
-                bufferStart = bufferEnd - offSet*lineSize;
+                //Advance the bufferStart
+                bufferStart = bufferEnd - (offSet)*lineSize;
                 bufferLineStart = bufferStart/lineSize;
                 
-                if(offSet < positions.size()){
-                    nextPosition = positions.get(offSet);
-                }else{
-                    nextPosition = numLines; //go to the end of file straight
+                if(offSet < positions.size()-1){
+                    nextPosition = positions.get(++offSet); //get the next position
+                    if(nextPosition*lineSize - bufferStart > maxBufferSize){
+                        nextPosition = bufferStart + maxBufferSize; //use maxBufferSize, do not increment offSet
+                        --offSet;//decrement offSet
+                    }else{
+                        //use nextPosition, increment offSet
+                    }
+                }
+                else{ //last run of the loop
+                    nextPosition = numLines - 1; //go to the last line
+                    offSet++; //increment offSet so that the loop won't run again
                 }
                 
-                bufferLineEnd = nextPosition-1;
-                bufferEnd = bufferLineEnd*lineSize;
+                //Advance the bufferEnd
+                bufferLineEnd = nextPosition; //do not minus 1
+                bufferEnd = bufferLineEnd*lineSize; 
+                
+                bufferSize = bufferEnd - bufferStart;
                 
             }
-            try{
-                fc.truncate(fileSize-(positions.size()*lineSize));
+            /*try{
+                //fc.truncate(fileSize-(positions.size()*lineSize));
             } catch (IOException ioe) {
                 //map = fc.map(FileChannel.MapMode.READ_WRITE, 0, 0);
                 System.gc();
@@ -359,7 +366,7 @@ public class OpenFileHandler {
                 } catch (IOException ioe2) {
                     throw ioe;
                 }
-            }
+            }*/
             
             
             //raf.setLength(fileSize-(positions.size()*lineSize));
@@ -379,7 +386,8 @@ public class OpenFileHandler {
         int end = bArray.length;
         
         for(int i=start;i<end;i++){
-            bArray[start-offset] = bArray[start];
+            byte b = bArray[i];
+            bArray[i-offset] = b;
         }
         return bArray;
     }

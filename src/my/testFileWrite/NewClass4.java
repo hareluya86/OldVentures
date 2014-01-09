@@ -23,7 +23,8 @@ public class NewClass4 {
         
         int lineSize = 31;
         int maxBufferSize = 1024*1024*500;
-        int[] positions = {0,1,5,13,29,31}; //sorted list of positions of the lines that are to be removed
+        //int[] positions = {0,1,5,13,29,31}; //sorted list of positions of the lines that are to be removed
+        int[] positions = {0,1,5,13};
         //int[] positions = {89,94,95,96,97,98};
         //int[] positions = {1,3,5,7,9,11,13};
         //int[] positions = {0,2,4,6,8,10,12};
@@ -34,7 +35,8 @@ public class NewClass4 {
         for(int i:positions){
             positionsList.add(i);
         }
-        RandomAccessFile raf = new RandomAccessFile("C:\\Users\\KH\\Documents\\test3.txt","rwd");
+        //RandomAccessFile raf = new RandomAccessFile("C:\\Users\\KH\\Documents\\test3.txt","rwd");
+        RandomAccessFile raf = new RandomAccessFile("C:\\Users\\vincent.a.lee\\Desktop\\example.txt","rwd");
         FileChannel fc = raf.getChannel();
         handler.removeSequencesFromFile2(positionsList, fc, lineSize, maxBufferSize);
     }
