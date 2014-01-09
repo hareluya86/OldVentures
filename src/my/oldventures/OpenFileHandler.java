@@ -23,6 +23,7 @@ import java.util.logging.Logger;
  */
 public class OpenFileHandler {
     
+    public final int MAX_BUFFER_SIZE = (int)Math.pow(2, 32);
     public int DEFAULT_LINE_SIZE;
     /**
      * DEFAULT_NEWLINE_SIZE: this is the platform-dependent default length of 
@@ -121,36 +122,36 @@ public class OpenFileHandler {
     
     
     public String generateSequenceRAF(int numOfSequence){
-        int size = 0;
-        int numOfLines = 0;
+        long size = 0;
+        long numOfLines = 0;
         String temp = "";
         int i = numOfSequence;
-        List<Integer> pool = new ArrayList<>();
+        List<Long> pool = new ArrayList<>();
         
         rawSequences = new String(); //clears away the previous sequences
         try{
             
             //First, get a random sequence
-            size = (int)raFile.length();
+            size = raFile.length();
             /**
              * 1. Assume that all lines in the file are of the same length
              * 2. Always use ceiling function because a line can be a partial line
              * eg. a line without '\n' at the end
              */
-            numOfLines = (int)Math.ceil(size/((double)DEFAULT_LINE_SIZE)); //must cast denom so that the product is a double for the ceiling function to work
+            numOfLines = (long)Math.ceil(size/((double)DEFAULT_LINE_SIZE)); //must cast denom so that the product is a double for the ceiling function to work
             if(numOfSequence > numOfLines)
                 return "Only "+numOfLines+" sequence(s) left in file!";
             
             while(i>0){
-                int randLine = ((int)(Math.random()*numOfLines));
-                int randPointer = randLine*DEFAULT_LINE_SIZE;
+                long randLine = ((long)(Math.random()*numOfLines));
+                long randPointer = randLine*DEFAULT_LINE_SIZE;
                 if(pool.contains(randLine)){
                     continue;
                 }
 
                 raFile.seek(randPointer);
                 String temp1 = raFile.readLine();
-                System.out.println("Line size: "+temp1.getBytes().length);
+                //System.out.println("Line size: "+temp1.getBytes().length);
                 temp = temp.concat(temp1).concat("\n");
 
                 i--;
@@ -163,7 +164,7 @@ public class OpenFileHandler {
             
             //Second, remove from file
             Collections.sort(pool);
-            removeSequencesFromFile(pool,fc,raFile,DEFAULT_LINE_SIZE);
+            removeSequencesFromFile2(pool,fc,DEFAULT_LINE_SIZE,MAX_BUFFER_SIZE*DEFAULT_LINE_SIZE);
         }
         catch (IOException ioe){
             Logger.getLogger(OpenFileHandler.class.getName()).log(Level.SEVERE, "IO exception", ioe);
@@ -287,13 +288,14 @@ public class OpenFileHandler {
         }
     }
     
-    public void removeSequencesFromFile2(List<Integer> positions, FileChannel fc, int lineSize, int maxBufferSize) throws IOException{
+    public void removeSequencesFromFile2(List<Long> positions, FileChannel fc, int lineSize, int maxBufferSize) throws IOException{
         long timeTaken;
         long fileSize;
-        int numLines;
+        long numLines;
         int initialbBufferSize = 0;
-        int numPositions = positions.size();
+        long numPositions = positions.size();
         if(numPositions <= 0) return; //no need to remove
+        maxBufferSize =  (int) Math.max(maxBufferSize, numPositions*2*lineSize); //must be at least twice the size of positions.
         
         try {
             fileSize = fc.size();
@@ -303,13 +305,13 @@ public class OpenFileHandler {
             //MappedByteBuffer map = fc.map(FileChannel.MapMode.READ_WRITE, 0, fileSize);
             
             //Byte counters/pointers
-            int bufferStart = positions.get(0)*lineSize; //start straight from the first file position. this points to where the buffer starts
+            long bufferStart = positions.get(0)*lineSize; //start straight from the first file position. this points to where the buffer starts
             int bufferSize = initialbBufferSize; //this will be increased later
-            int bufferEnd = bufferStart; //tells us where the buffer ends
+            long bufferEnd = bufferStart; //tells us where the buffer ends
             int offSet = 0; //number of sequences found so far
-            int nextPosition = positions.get(offSet);
+            long nextPosition = positions.get(offSet);
             
-            final int fileEnd = (int) (fileSize); //tells us the last point of the buffer
+            final long fileEnd = fileSize; //tells us the last point of the buffer
             /*
             if(positions.size() > 1){
                 bufferEnd = (positions.get(1)-1)*lineSize;
@@ -318,14 +320,17 @@ public class OpenFileHandler {
                 bufferEnd = fileEnd;
             }*/
             //File line counters/pointers
-            int bufferLineStart = bufferStart/lineSize;
-            int bufferLineSize = bufferSize/lineSize;
-            int bufferLineEnd = bufferEnd/lineSize; //Line tells us where the last line is
+            long bufferLineStart = bufferStart/lineSize;
+            long bufferLineSize = bufferSize/lineSize;
+            long bufferLineEnd = bufferEnd/lineSize; //Line tells us where the last line is
             
             while(offSet<=positions.size()){ 
                 
-                byte[] bArray = new byte[bufferSize];
-                MappedByteBuffer map = fc.map(FileChannel.MapMode.READ_WRITE, bufferStart, bufferSize);
+                byte[] bArray = new byte[0];
+                bArray = new byte[bufferSize];
+                
+                ByteBuffer map = MappedByteBuffer.allocate(0);
+                map = fc.map(FileChannel.MapMode.READ_WRITE, bufferStart, bufferSize);
                 map.get(bArray);
                 bArray = shift(bArray,offSet*lineSize);
                 map.position(0);
@@ -337,36 +342,45 @@ public class OpenFileHandler {
                 
                 if(offSet < positions.size()-1){
                     nextPosition = positions.get(++offSet); //get the next position
-                    if(nextPosition*lineSize - bufferStart > maxBufferSize){
-                        nextPosition = bufferStart + maxBufferSize; //use maxBufferSize, do not increment offSet
-                        --offSet;//decrement offSet
-                    }else{
-                        //use nextPosition, increment offSet
-                    }
                 }
                 else{ //last run of the loop
                     nextPosition = numLines - 1; //go to the last line
-                    offSet++; //increment offSet so that the loop won't run again
+                    offSet++; //increment offSet just to kill the loop!
+                }
+                if(nextPosition*lineSize - bufferStart > maxBufferSize){
+                    nextPosition = (bufferStart + maxBufferSize)/lineSize; //use maxBufferSize, do not increment offSet
+                    //if you encounter this scenario the 1st time, you cannot decrement offSet!
+                    //Check if any of the positions are within the range of bufferStart and nextPosition
+                    //if there is, then keep the offSet value which was incremented above
+                    //if not, decrement offSet
+                    boolean decrement = true;
+                    for(int i=0;i<positions.size();i++){
+                        if(positions.get(i) >= bufferLineStart && positions.get(i) <= nextPosition){
+                            decrement = false;
+                            break;
+                        }
+                    }
+                    if(decrement){
+                        offSet--;
+                    }
                 }
                 
                 //Advance the bufferEnd
                 bufferLineEnd = nextPosition; //do not minus 1
                 bufferEnd = bufferLineEnd*lineSize; 
                 
-                bufferSize = bufferEnd - bufferStart;
+                bufferSize = (int) (bufferEnd - bufferStart);
                 
             }
-            /*try{
-                //fc.truncate(fileSize-(positions.size()*lineSize));
-            } catch (IOException ioe) {
-                //map = fc.map(FileChannel.MapMode.READ_WRITE, 0, 0);
-                System.gc();
+            boolean pass = false;
+            while(!pass){
                 try{
-                    fc.truncate(fileSize-(positions.size()*lineSize));
-                } catch (IOException ioe2) {
-                    throw ioe;
+                    fc.truncate(fileSize-(offSet-1)*lineSize);
+                    pass = true;
+                } catch (IOException ioe) {
+                    System.gc();
                 }
-            }*/
+            }
             
             
             //raf.setLength(fileSize-(positions.size()*lineSize));

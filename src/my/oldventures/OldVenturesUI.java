@@ -245,11 +245,19 @@ public class OldVenturesUI extends javax.swing.JFrame {
 
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
         // TODO add your handling code here:
+        if(openFileHandler.getFc() == null || !openFileHandler.getFc().isOpen()){
+            return;
+        }
         generateButton.setText("Generating...");
         generateButton.setEnabled(false);
         String numOfSequenceString = this.numSeqSelector.getSelectedItem().toString();
         int numOfSequence = Integer.parseInt(numOfSequenceString);
-        String result = openFileHandler.generateSequenceRAF(numOfSequence);
+        String result = "Generating...";
+        try{
+            result = openFileHandler.generateSequenceRAF(numOfSequence);
+        } catch(Error e){
+            result = "Error: "+e.getMessage();
+        }
         statusBar.setText(result);
         
         String rawSequence = openFileHandler.getRawSequences();
