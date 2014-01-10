@@ -38,6 +38,6 @@ public class NewClass4 {
         RandomAccessFile raf = new RandomAccessFile("C:\\Users\\KH\\Documents\\tc_7.txt","rwd");
         //RandomAccessFile raf = new RandomAccessFile("C:\\Users\\vincent.a.lee\\Desktop\\example.txt","rwd");
         FileChannel fc = raf.getChannel();
-        handler.removeSequencesFromFile2(positionsList, fc, lineSize, maxBufferSize);
+        handler.removeSequencesFromFile(positionsList, fc, lineSize, maxBufferSize);
     }
 }
