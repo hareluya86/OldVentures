@@ -93,11 +93,6 @@ public class OldVenturesUI extends javax.swing.JFrame {
 
         numSeqSelector.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20" }));
         numSeqSelector.setSelectedIndex(5);
-        numSeqSelector.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                numSeqSelectorActionPerformed(evt);
-            }
-        });
 
         generateButton.setText("Generate Sequence");
         generateButton.addActionListener(new java.awt.event.ActionListener() {
@@ -113,21 +108,21 @@ public class OldVenturesUI extends javax.swing.JFrame {
         convertToExcelButton.setText("Excel");
         convertToExcelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                convertToExcelButtonActionPerformed(evt);
+                convertButtonActionPerformed(evt);
             }
         });
 
         convertToCSVButton.setText("CSV");
         convertToCSVButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                convertToCSVButtonActionPerformed(evt);
+                convertButtonActionPerformed(evt);
             }
         });
 
         convertToTextButton.setText("Text");
         convertToTextButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                convertToTextButtonActionPerformed(evt);
+                convertButtonActionPerformed(evt);
             }
         });
 
@@ -239,20 +234,17 @@ public class OldVenturesUI extends javax.swing.JFrame {
         
     }//GEN-LAST:event_openFileButtonActionPerformed
 
-    private void numSeqSelectorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_numSeqSelectorActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_numSeqSelectorActionPerformed
-
     private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
         // TODO add your handling code here:
         if(openFileHandler.getFc() == null || !openFileHandler.getFc().isOpen()){
-            return;
+            return; //do nothing
         }
-        generateButton.setText("Generating...");
+        String result = "Generating...";
+        generateButton.setText(result);
         generateButton.setEnabled(false);
         String numOfSequenceString = this.numSeqSelector.getSelectedItem().toString();
         int numOfSequence = Integer.parseInt(numOfSequenceString);
-        String result = "Generating...";
+        
         try{
             result = openFileHandler.generateSequenceRAF(numOfSequence);
         } catch(Error e){
@@ -269,26 +261,22 @@ public class OldVenturesUI extends javax.swing.JFrame {
         generateButton.setEnabled(true);
     }//GEN-LAST:event_generateButtonActionPerformed
 
-    private void convertToExcelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_convertToExcelButtonActionPerformed
+    private void convertButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_convertButtonActionPerformed
         // TODO add your handling code here:
+        
         List<List<String>> output = sequenceFormatHandler.linesFromText(openFileHandler.getRawSequences());
-        String result = sequenceFormatHandler.changeSequencesFormat(output, SequenceFormatHandler.FORMAT.EXCEL);
+        String result = new String();
+        if(evt.getSource() == this.convertToExcelButton){
+            result = sequenceFormatHandler.changeSequencesFormat(output, SequenceFormatHandler.FORMAT.EXCEL);
+        }else if(evt.getSource() == this.convertToCSVButton){
+            result = sequenceFormatHandler.changeSequencesFormat(output, SequenceFormatHandler.FORMAT.CSV);
+        }else if(evt.getSource() == this.convertToCSVButton){
+            result = sequenceFormatHandler.changeSequencesFormat(output, SequenceFormatHandler.FORMAT.TEXT);
+        }else{ //unknown type
+            result = sequenceFormatHandler.changeSequencesFormat(output, SequenceFormatHandler.FORMAT.TEXT);
+        }
         this.outputTextArea.setText(result);
-    }//GEN-LAST:event_convertToExcelButtonActionPerformed
-
-    private void convertToCSVButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_convertToCSVButtonActionPerformed
-        // TODO add your handling code here:
-        List<List<String>> output = sequenceFormatHandler.linesFromText(openFileHandler.getRawSequences());
-        String result = sequenceFormatHandler.changeSequencesFormat(output, SequenceFormatHandler.FORMAT.CSV);
-        this.outputTextArea.setText(result);
-    }//GEN-LAST:event_convertToCSVButtonActionPerformed
-
-    private void convertToTextButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_convertToTextButtonActionPerformed
-        // TODO add your handling code here:
-        List<List<String>> output = sequenceFormatHandler.linesFromText(openFileHandler.getRawSequences());
-        String result = sequenceFormatHandler.changeSequencesFormat(output, SequenceFormatHandler.FORMAT.TEXT);
-        this.outputTextArea.setText(result);
-    }//GEN-LAST:event_convertToTextButtonActionPerformed
+    }//GEN-LAST:event_convertButtonActionPerformed
 
     private void copyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyButtonActionPerformed
         // TODO add your handling code here:
