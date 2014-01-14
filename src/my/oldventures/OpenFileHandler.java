@@ -133,6 +133,7 @@ public class OpenFileHandler {
             
             //First, get a random sequence
             size = raFile.length();
+            if(size <= 0) return "Error: empty file";
             /**
              * 1. Assume that all lines in the file are of the same length
              * 2. Always use ceiling function because a line can be a partial line
@@ -253,7 +254,8 @@ public class OpenFileHandler {
                     nextPosition = numLines - 1; //go to the last line
                     offSet++; //increment offSet just to kill the loop!
                 }
-                if(nextPosition*lineSize - bufferStart > maxBufferSize){
+                long expectedBufferSize = nextPosition*lineSize - bufferStart;
+                if(expectedBufferSize > maxBufferSize){
                     nextPosition = (bufferStart + maxBufferSize)/lineSize; //use maxBufferSize, do not increment offSet
                     //if you encounter this scenario the 1st time, you cannot decrement offSet!
                     //Check if any of the positions are within the range of bufferStart and nextPosition
