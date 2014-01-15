@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  */
 public class OpenFileHandler {
     
-    public final int MAX_BUFFER_SIZE = (int)Math.pow(2, 32);
+    public final int MAX_BUFFER_SIZE = (int)Math.pow(2, 25);
     public int DEFAULT_LINE_SIZE;
     /**
      * DEFAULT_NEWLINE_SIZE: this is the platform-dependent default length of 
@@ -165,6 +165,7 @@ public class OpenFileHandler {
             
             //Second, remove from file
             //Collections.sort(pool);
+            int max_buffer_size = MAX_BUFFER_SIZE*DEFAULT_LINE_SIZE;
             removeSequencesFromFile(pool,fc,DEFAULT_LINE_SIZE,MAX_BUFFER_SIZE*DEFAULT_LINE_SIZE);
         }
         catch (IOException ioe){
@@ -243,16 +244,24 @@ public class OpenFileHandler {
                 map.position(0);
                 map.put(bArray);
                 
+                //Decide if to end the loop
+                if(bufferLineEnd >= numLines) 
+                    break;
+                
                 //Advance the bufferStart
                 bufferStart = bufferEnd - (offSet)*lineSize;
                 bufferLineStart = bufferStart/lineSize;
                 
-                if(offSet < positions.size()-1){
-                    nextPosition = positions.get(++offSet); //get the next position
+                //Decide whether to increment buffer or not
+                if(offSet < positions.size() && bufferLineEnd == positions.get(offSet))
+                    offSet++;
+                
+                if(offSet < positions.size()){
+                    nextPosition = positions.get(offSet); //get the next position
                 }
                 else{ //last run of the loop
-                    nextPosition = numLines - 1; //go to the last line
-                    offSet++; //increment offSet just to kill the loop!
+                    nextPosition = numLines; //go to the last line
+                    //offSet++; //increment offSet just to kill the loop!
                 }
                 long expectedBufferSize = nextPosition*lineSize - bufferStart;
                 if(expectedBufferSize > maxBufferSize){
@@ -261,7 +270,7 @@ public class OpenFileHandler {
                     //Check if any of the positions are within the range of bufferStart and nextPosition
                     //if there is, then keep the offSet value which was incremented above
                     //if not, decrement offSet
-                    boolean decrement = true;
+                    /*boolean decrement = true;
                     for(int i=0;i<positions.size();i++){
                         if(positions.get(i) >= bufferLineStart && positions.get(i) <= nextPosition){
                             decrement = false;
@@ -270,7 +279,7 @@ public class OpenFileHandler {
                     }
                     if(decrement){
                         offSet--;
-                    }
+                    }*/
                 }
                 
                 //Advance the bufferEnd
@@ -284,7 +293,7 @@ public class OpenFileHandler {
             //Very bad design but no choice, potential infinite loop
             while(!pass){
                 try{
-                    fc.truncate(fileSize-(offSet-1)*lineSize);
+                    fc.truncate(fileSize-(offSet)*lineSize);
                     pass = true;
                 } catch (IOException ioe) {
                     System.gc();
