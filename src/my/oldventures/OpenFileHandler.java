@@ -112,7 +112,14 @@ public class OpenFileHandler {
         try{
             if(lock != null){
                 lock.close();
+                lock = null;
             } //release
+            if(fc != null){
+                fc.close();
+                fc = null;
+            }
+            this.setRawSequences(new String());
+            
         } catch (IOException ioe) {
             Logger.getLogger(OpenFileHandler.class.getName()).log(Level.SEVERE, "IO exception", ioe);
             return "Error closing file: "+ioe.getMessage();
