@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  */
 public class OpenFileHandler {
     
-    public final int MAX_BUFFER_SIZE = (int)Math.pow(2, 25);
+    public final int MAX_BUFFER_SIZE = (int)Math.pow(2, 21);
     public int DEFAULT_LINE_SIZE;
     /**
      * DEFAULT_NEWLINE_SIZE: this is the platform-dependent default length of 
